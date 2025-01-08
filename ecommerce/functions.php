@@ -182,40 +182,69 @@ function sendmail($to , $title , $body){
 $header = "CC: repo@repostoree.online\r\n";
     mail($to , $title , $body , $header);
 }
-function sendGCM($title, $message, $topic, $pageid, $pagename)
-{
-    $url = 'https://fcm.googleapis.com/v1/projects/ecommerceapp2-aaed0/messages:send';
-    $fields = array(
-        "topic" => $topic,
-        'priority' => 'high',
-        'content_available' => true,
+function sendGCM($title, $message, $topic, $pageid, $pagename) {  
+    // URL for Firebase Cloud Messaging  
+    $url = 'https://fcm.googleapis.com/v1/projects/ecommerceapp2-aaed0/messages:send';  
 
-        'notification' => array(
-            "body" =>  $message,
-            "title" =>  $title,
-        ),
-        'android' => array(
-            "notification" => array(
-            "click_action" => "FLUTTER_NOTIFICATION_CLICK",
-        )
-        ),
-        'data' => array(
-            "pageid" => $pageid,
-            "pagename" => $pagename
-        )
-    );
-    $fields = json_encode($fields);
-    $headers = array(
-        'Authorization: Bearer ' . "ya29.c.c0ASRK0GYSNwvW2oPMVf32H3MY2Xa6QJclWLgbuNVf_XhPN7ixFlrPEN457EYjFKls5NLPU4b8H82GYx5su6kLHhjaJTSttlRxf2E007rd8n51Jo9qbPChYRHuNfgcNLunAm4BE0syQWCBnxkcCgEHpxbv1SIsBDk-4NW-Yn2vkBHMUJQExsCyfKEwOX3pf-BZzUrFKwIe_JtVAOjux4bK3hB5HqpCmiCeGz5-2SYZjiPg8yPRMSGVQjUEQ6nBCt-2KA8p5uv5KYtUVpC4VWOCJZ45sOtNRYNmYmSr9TzJ4J3pCJAc7UG7eiC8QWmWE2m3DKqgRnxk-lv9TvSot2MLG4DWl05g-KjPwFFC2DnwgQkGDsYC_e9tKGABM48sHQT391PbSbehd2gk0WOrJFVUYzYqiQq6I_1J-JxwYmzkX78x9_sbhnUVzxOzpcJVJmuXgyu8VUu-ypZqXOm9d-gM3XzUp59-Z9lwSyXjlUwXSpsYZa2bcO5-5uxzJ-FWBo2OZgFV2azeQF2MFsrubZl67OfUealmkcrbMI5qhnU4jX2uk8qB21r3mcyqRVkZoBrXlMup9Zw8_bqe2Baokb-fwFiUofk7-FWMpWlstks3zb4gOUXciwvimw60xZj_im90vru-j_Yg4XtQO8fgeO6Rr1h-2umprZg9hB3Vv7Xc_zdRIkitMSYpeUYwslX49VRvql_9SccFv7t7Wn_x9M-X5ghcpQrtahqu9cWl6XyxnOzn9d2VFq1abIQ47izfmUgI6VnZ6aYUkSkaYYOY-tza8pirjm1x9h-hQRRq36dkre33g1F8dVw4_6uzkm7iW-43RYehm_mRftUe4rS0lUOq5B9mOZqkRdIc1nsr54IIai6354URQt56xFztUfwsYvWXcd7B32I2mc9huonfkgunuJWiOF04xigjY1I-au95sIylVtcvspb-wQYfz9alq7aRfXIXa3JtscF4bRF2kJ8xyv0-lrq6qhRldV_YXkU1",
-        'Content-Type: application/json'
-    );
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-    $result = curl_exec($ch);
-    return $result;
-    curl_close($ch);
+    // Constructing the message payload  
+    $fields = array(  
+        "message" => array(  
+            "topic" => $topic,  
+            "notification" => array(  
+                "body" => $message,  
+                "title" => $title  
+            ),  
+            "data" => array(  
+                "keysandvalues" => json_encode(array(  
+                    "pageid" => $pageid,  
+                    "pagename" => $pagename  
+                ))  
+            ),  
+            "android" => array(
+                "priority" => "high",
+                "notification" => array(  
+                    "click_action" => "FLUTTER_NOTIFICATION_CLICK" // Adjust if necessary  
+                )  
+            ),  
+            "apns" => array( // Optional: for iOS notifications  
+                "payload" => array(  
+                    "aps" => array(  
+                        "category" => "NEW_MESSAGE_CATEGORY" // Adjust if necessary  
+                    )  
+                )  
+                    ),
+               
+        )  
+    );  
+    
+    // Encoding the fields as JSON  
+    $fields = json_encode($fields);  
+    
+    // Headers for the request  
+    $headers = array(  
+        'Authorization: Bearer ya29.c.c0ASRK0GbrAgXe7L9ek9bQLwqkrLDsR_Xi-FG5_26VobJa0Tus7Zg9O9na4Lit3D0hJhnqr2yDV8Autk0xGHIFI-yIjHAOMf4NOoIohamMSLO_h9M0TghS09z_X6x49UVEkw76fQXkcjNZtVbIn8o1tYRImVE2tTKyMH6pfND-h0MZsYZccVPjBIw-VR2U7VSWRLPtPVjIYRUspVlbRdZw-W8VXC4GA8Vtol0q9k8_5rXoNDkHJjMKS2ZSeySUtIUL2ybpb4EbQmK4AHM3bF5ttHUjyphm3j1p1uHqDwlzfBlYMDzU9rm_isPgeC828cn346TgXYmKKjErgYHtW-QAhisq7RAzElkvX2CGp6HOvh0LBEd9jyWP8QIxquQKL389C-Rka44Ok4IJZw9Wv9_OOsJcu01zxS7Z52S82R34YYfmdZgwmquvcsh31y6k28SldzjvmmUv-kxaSq9fxh4Y3ai2ol7n5zSFRkXnvhc343vYQipe6c6-0kv3aMwFMRUhvUm5m9XoxZp-yI_escUyuoIU7ztZQmIbdabQVZao8o-bBVJdIwunxJij_3Zg-t6Y9z8xgV7-q5fzkpMsRXqoZyhIk_so9il-mbZfXY3fMIyrex3hyoX6oxzZ5cu_aoaJudpgUz3hX-qpu08eg9f-4BFIO1wp_OqBUUgFoJk1QI1InpBUZi_QXm7bUJfw6c7BzQFBW22uSJ4_6RURXrtouhqt75IqJ-cbS02ZcVhF_zib2kelwmIWsYm3iZn611s59lReYO4-Q2akfYpOq-_BguIFip2VerJ0yuxnYX9wSgwxb_40VJ-b6MJRnYIz-MynJm5lW8R9dlUzv02_UaSOeXJhhpn0Uzm-B4ue3XJYcuoVsWw35t22qFRSIx5lYqVShFqoVF1azqqndcVJ28jF6zo-BqYzkZ5B2_Rh7xvnx5_wJ3F1tIhBYpbcmwvF4nFxOSgXMf6xOtzmQeytwzrxgSzUbyY7qjFbSyVcygxe', // Use the actual token  
+        'Content-Type: application/json'  
+    );  
+    
+    // Initializing a cURL session  
+    $ch = curl_init();  
+    curl_setopt($ch, CURLOPT_URL, $url);  
+    curl_setopt($ch, CURLOPT_POST, true);  
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);  
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);  
+    
+    // Executing the cURL request  
+    $result = curl_exec($ch);  
+    
+    // Error handling  
+    if ($result === false) {  
+        echo 'Curl error: ' . curl_error($ch);  
+    }  
+    
+    // Closing cURL session  
+    curl_close($ch);  
+    
+    // Returning the result  
+    return $result;  
 }
